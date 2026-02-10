@@ -2,51 +2,52 @@
 <html lang="zh-CN">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>FISCO BCOS 积分管理系统</title>
+    <title>区块链证书存证系统</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <style>
-        body { padding: 40px; background-color: #f8f9fa; }
-        .card { margin-bottom: 20px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
-        .console-box { background: #212529; color: #00ff00; padding: 15px; border-radius: 5px; font-family: monospace; height: 200px; overflow-y: scroll; }
+        body { background-color: #f0f2f5; padding-top: 50px; }
+        .main-card { box-shadow: 0 8px 16px rgba(0,0,0,0.1); border: none; border-radius: 12px; }
+        .result-box { background: #fff; border-left: 5px solid #0d6efd; padding: 20px; display: none; margin-top: 20px;}
+        .valid-tag { color: green; font-weight: bold; }
+        .invalid-tag { color: red; font-weight: bold; }
     </style>
 </head>
 <body>
 
 <div class="container">
-    <h1 class="mb-4 text-center">⛓️ 积分 DApp 管理台</h1>
+    <h2 class="text-center mb-5">🎓 区块链学历认证平台</h2>
 
-    <div class="row">
-        <div class="col-md-6">
-            
-            <div class="card">
-                <div class="card-header bg-primary text-white">⚙️ 初始化系统</div>
+    <div class="row justify-content-center">
+        <div class="col-md-5">
+            <div class="card main-card mb-4">
+                <div class="card-header bg-primary text-white">管理员：颁发证书</div>
                 <div class="card-body">
-                    <p class="card-text">将积分合约部署到区块链网络。</p>
-                    <button onclick="deployContract()" class="btn btn-primary w-100">部署合约 (Deploy)</button>
+                    <button onclick="deploy()" class="btn btn-warning w-100 mb-3">1. 部署系统合约</button>
+                    <hr>
+                    <div class="mb-2"><input id="i_id" class="form-control" placeholder="证书编号 (如: 2026001)"></div>
+                    <div class="mb-2"><input id="i_name" class="form-control" placeholder="学生姓名"></div>
+                    <div class="mb-3"><input id="i_course" class="form-control" placeholder="专业/课程"></div>
+                    <button onclick="issue()" class="btn btn-success w-100">2. 颁发证书上链</button>
                 </div>
             </div>
-
-            <div class="card">
-                <div class="card-header bg-success text-white">💰 资产管理</div>
-                <div class="card-body">
-                    <label class="form-label">发行数量 (Amount)</label>
-                    <div class="input-group mb-3">
-                        <input type="number" id="issueAmount" class="form-control" placeholder="输入积分数量" value="100">
-                        <button onclick="issuePoints()" class="btn btn-success">发行积分 (Issue)</button>
-                    </div>
-                </div>
-            </div>
-
         </div>
 
-        <div class="col-md-6">
-            <div class="card">
-                <div class="card-header bg-dark text-white">📺 区块链交互日志</div>
-                <div class="card-body p-0">
-                    <div id="console" class="console-box">
-                        > 系统就绪...<br>
-                        > 等待操作...
+        <div class="col-md-5">
+            <div class="card main-card">
+                <div class="card-header bg-dark text-white">公众：证书核验</div>
+                <div class="card-body">
+                    <div class="input-group mb-3">
+                        <input id="q_id" type="text" class="form-control" placeholder="输入证书编号查询">
+                        <button onclick="verify()" class="btn btn-dark">查询真伪</button>
+                    </div>
+                    
+                    <div id="resultArea" class="result-box">
+                        <h5>📜 查询结果</h5>
+                        <p>姓名: <span id="r_name"></span></p>
+                        <p>专业: <span id="r_course"></span></p>
+                        <p>日期: <span id="r_date"></span></p>
+                        <p>机构: <span id="r_issuer"></span></p>
+                        <p>状态: <span id="r_status"></span></p>
                     </div>
                 </div>
             </div>
@@ -55,53 +56,44 @@
 </div>
 
 <script>
-    // 辅助函数：向控制台打印日志
-    function log(message) {
-        const consoleBox = document.getElementById('console');
-        const time = new Date().toLocaleTimeString();
-        consoleBox.innerHTML += `<div>[${time}] ${message}</div>`;
-        consoleBox.scrollTop = consoleBox.scrollHeight; // 自动滚动到底部
+    async function deploy() {
+        const res = await fetch('/cert/deploy');
+        alert(await res.text());
     }
 
-    // 功能 1：调用后端 /deploy 接口
-    async function deployContract() {
-        log("⏳ 正在请求部署合约...");
-        try {
-            // 发起 HTTP 请求
-            const response = await fetch('/deploy');
-            const result = await response.text();
+    async function issue() {
+        const id = document.getElementById('i_id').value;
+        const name = document.getElementById('i_name').value;
+        const course = document.getElementById('i_course').value;
+        
+        // Post 请求
+        const res = await fetch(`/cert/issue?id=${id}&name=${name}&course=${course}`, { method: 'POST' });
+        alert(await res.text());
+    }
+
+    async function verify() {
+        const id = document.getElementById('q_id').value;
+        const res = await fetch(`/cert/verify?id=${id}`);
+        const data = await res.json(); // 解析 JSON
+
+        if (data.id) {
+            document.getElementById('resultArea').style.display = 'block';
+            document.getElementById('r_name').innerText = data.name;
+            document.getElementById('r_course').innerText = data.course;
+            document.getElementById('r_date').innerText = data.date;
+            document.getElementById('r_issuer').innerText = data.issuer;
             
-            if (response.ok) {
-                log(`✅ ${result}`);
+            const statusSpan = document.getElementById('r_status');
+            if (data.isValid) {
+                statusSpan.innerText = "✅ 有效 (Valid)";
+                statusSpan.className = "valid-tag";
             } else {
-                log(`❌ 部署失败: ${result}`);
+                statusSpan.innerText = "❌ 已撤销 (Revoked)";
+                statusSpan.className = "invalid-tag";
             }
-        } catch (error) {
-            log(`❌ 网络错误: ${error}`);
-        }
-    }
-
-    // 功能 2：调用后端 /issue 接口
-    async function issuePoints() {
-        const amount = document.getElementById('issueAmount').value;
-        if (!amount) {
-            alert("请输入数量！");
-            return;
-        }
-
-        log(`⏳ 正在请求发行 ${amount} 积分...`);
-        try {
-            // 拼接 URL 参数
-            const response = await fetch(`/issue?amount=${amount}`);
-            const result = await response.text();
-
-            if (response.ok) {
-                log(`✅ ${result}`);
-            } else {
-                log(`❌ 发行失败: ${result}`);
-            }
-        } catch (error) {
-            log(`❌ 网络错误: ${error}`);
+        } else {
+            alert("未查询到该证书信息！");
+            document.getElementById('resultArea').style.display = 'none';
         }
     }
 </script>
