@@ -1,0 +1,68 @@
+# --- Java / Gradle / Maven ---
+.gradle/
+**/build/
+**/target/
+!gradle/wrapper/gradle-wrapper.jar
+
+# --- Logs / temp files ---
+*.log
+logs/
+log/
+*.tmp
+*.swp
+*.swo
+
+# --- OS junk ---
+.DS_Store
+Thumbs.db
+ehthumbs.db
+
+# --- IDEs ---
+## IntelliJ IDEA
+.idea/
+*.iml
+*.ipr
+*.iws
+out/
+
+## VS Code
+.vscode/
+
+## Eclipse / STS
+.classpath
+.project
+.settings/
+.factorypath
+.apt_generated/
+.springBeans
+.sts4-cache/
+bin/
+
+## NetBeans
+/nbproject/private/
+/nbbuild/
+/dist/
+/nbdist/
+/.nb-gradle/
+
+# --- Env files ---
+.env
+.env.*
+
+# --- Security: keys / certs (keep samples elsewhere) ---
+conf/**/*.key
+conf/**/*.pem
+conf/**/*.p12
+conf/**/*.pfx
+conf/**/*.jks
+conf/**/*.keystore
+conf/**/*.der
+conf/**/*.crt
+src/main/resources/conf/**/*.key
+src/main/resources/conf/**/*.pem
+src/main/resources/conf/**/*.p12
+src/main/resources/conf/**/*.pfx
+src/main/resources/conf/**/*.jks
+src/main/resources/conf/**/*.keystore
+src/main/resources/conf/**/*.der
+src/main/resources/conf/**/*.crt
